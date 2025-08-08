@@ -1,0 +1,28 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: baptistero-ingress
+  namespace: baptistero
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
+    nginx.ingress.kubernetes.io/use-regex: "true"
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: baptistero.local
+      http:
+        paths:
+          - path: /auth(/|$)(.*)
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: auth-gemini-service
+                port:
+                  number: 8080
+          - path: /analyzer(/|$)(.*)
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: text-analyzer
+                port:
+                  number: 8080

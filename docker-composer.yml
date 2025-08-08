@@ -1,0 +1,90 @@
+version: '3.8'
+
+services:
+  auth-service:
+    image: baptistero/gemini-auth:latest
+    container_name: auth_service
+    ports:
+      - "8081:80"
+    depends_on:
+      auth-postgres:
+        condition: service_healthy
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://auth-postgres:5433/authdb
+      SPRING_DATASOURCE_USERNAME: authuser
+      SPRING_DATASOURCE_PASSWORD: authpass
+    networks:
+      - shared-net
+
+  auth-postgres:
+    image: postgres:15
+    container_name: auth-postgres
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    environment:
+      POSTGRES_DB: authdb
+      POSTGRES_USER: authuser
+      POSTGRES_PASSWORD: authpass
+    ports:
+      - "5433:5433"
+    volumes:
+      - auth_data:/var/lib/postgresql/data
+    networks:
+      - shared-net
+
+  text-analyzer:
+    image: baptistero/gemini-text-analyzer:latest
+    container_name: text-analyzer
+    ports:
+      - "8080:80"
+    env_file:
+      - ./gemini-api-integration/.env
+    depends_on:
+      - analyzer-postgres
+      - analyzer-mongo
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://analyzer-postgres:5432/myapp
+      SPRING_DATASOURCE_USERNAME: developer
+      SPRING_DATASOURCE_PASSWORD: devpass
+      SPRING_DATA_MONGODB_URI: mongodb://admin:admin123@analyzer-mongo:27017/cache_db?authSource=admin
+    networks:
+      - shared-net
+
+  analyzer-postgres:
+    image: postgres:15
+    container_name: analyzer-postgres
+    environment:
+      POSTGRES_DB: myapp
+      POSTGRES_USER: developer
+      POSTGRES_PASSWORD: devpass
+    ports:
+      - "5432:5432"
+    volumes:
+      - analyzer_pg_data:/var/lib/postgresql/data
+    networks:
+      - shared-net
+
+  analyzer-mongo:
+    image: mongo:7.0
+    container_name: analyzer-mongo
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: admin123
+      MONGO_INITDB_DATABASE: cache_db
+    ports:
+      - "27017:27017"
+    volumes:
+      - analyzer_mongo_data:/data/db
+    networks:
+      - shared-net
+
+volumes:
+  auth_data:
+  analyzer_pg_data:
+  analyzer_mongo_data:
+
+networks:
+  shared-net:

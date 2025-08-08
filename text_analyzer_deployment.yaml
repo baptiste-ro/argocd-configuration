@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gemini-text-analyzer
+  namespace: baptistero
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: gemini-text-analyzer
+  template:
+    metadata:
+      labels:
+        app: gemini-text-analyzer
+    spec:
+      imagePullSecrets:
+        - name: dockerhub-auth
+      containers:
+        - name: gemini-text-analyzer
+          image: baptistero/gemini-text-analyzer:latest
+          ports:
+            - containerPort: 8080
+          env:
+            - name: gemini.api.key
+              value: AIzaSyAvJ-WLavvrSNpavrgvi5ZB1X2pQJvuTyE
+            - name: SPRING_DATASOURCE_URL
+              value: jdbc:postgresql://analyzer-postgres:5432/myapp
+            - name: SPRING_DATASOURCE_USERNAME
+              value: developer
+            - name: SPRING_DATASOURCE_PASSWORD
+              value: devpass
+            - name: SPRING_DATA_MONGODB_URI
+              value: mongodb://admin:admin123@analyzer-mongo:27017/cache_db?authSource=admin
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "250m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"

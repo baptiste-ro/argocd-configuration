@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: auth-gemini-service
+  namespace: baptistero
+spec:
+  selector:
+    app: auth-gemini
+  ports:
+    - port: 8080
+      targetPort: 8081
+  type: ClusterIP

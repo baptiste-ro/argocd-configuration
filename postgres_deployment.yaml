@@ -1,0 +1,27 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: analyzer-postgres
+  namespace: baptistero
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: analyzer-postgres
+  template:
+    metadata:
+      labels:
+        app: analyzer-postgres
+    spec:
+      containers:
+        - name: postgres
+          image: postgres:14
+          env:
+            - name: POSTGRES_DB
+              value: myapp
+            - name: POSTGRES_USER
+              value: developer
+            - name: POSTGRES_PASSWORD
+              value: devpass
+          ports:
+            - containerPort: 5432
