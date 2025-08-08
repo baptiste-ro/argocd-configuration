@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: auth-gemini
+  namespace: baptistero
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: auth-gemini
+  template:
+    metadata:
+      labels:
+        app: auth-gemini
+    spec:
+      imagePullSecrets:
+        - name: dockerhub-auth
+      containers:
+        - name: gemini-auth
+          image: baptistero/gemini-auth:latest
+          ports:
+            - containerPort: 8081
+          env:
+            - name: ENV
+              value: "production"
+            - name: SPRING_DATASOURCE_URL
+              value: jdbc:postgresql://auth-postgres:5433/authdb
+            - name: SPRING_DATASOURCE_USERNAME
+              value: authuser
+            - name: SPRING_DATASOURCE_PASSWORD
+              value: authpass
+            - name: SPRING_FLYWAY_BASELINE_ON_MIGRATE
+              value: "true"
+            - name: JWT_SECRET
+              value: ece2731d5e13c28da80dba3a22dacf9e600422aa584bb72d0d5547448e8b9b944f6913c247d33760045bb11d4dd0bad639ea84a102c613c07e880c8129217d43
+            - name: JWT_EXPIRATION
+              value: "86400000"
+            - name: JWT_REFRESH_EXPIRATION
+              value: "604800000"
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "100m"
+            limits:
+              memory: "256Mi"
+              cpu: "200m"
