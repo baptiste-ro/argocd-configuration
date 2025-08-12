@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   auth-service:
-    image: baptistero/gemini-auth:latest
+    image: baptistero/gemini-auth:001
     container_name: auth_service
     ports:
       - "8081:80"
