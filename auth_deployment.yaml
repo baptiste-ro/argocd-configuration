@@ -17,7 +17,7 @@ spec:
         - name: dockerhub-auth
       containers:
         - name: gemini-auth
-          image: baptistero/gemini-auth:latest
+          image: baptistero/gemini-auth:002
           ports:
             - containerPort: 8081
           env:
